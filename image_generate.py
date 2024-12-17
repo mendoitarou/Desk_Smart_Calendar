@@ -363,15 +363,15 @@ def generate_image(debug = False):
     with open(log_path, mode='a') as f:
         f.write(text)
 
-    # 返り値として画像を返す
-    return im
-
     #デバッグ
     if(debug):
         # デバッグ用画像表示
         im.show()
         # デバッグ用画像保存
         #im.save(path + '/temp.png', quality=100)
+
+    # 返り値として画像を返す
+    return im
 
 #weather_data = get_weather_api(39000)
 #print(f"Weather_Icon_Image_Path: ./weatherCodes_Image/{weather_data["weather_code"]}.svg")
