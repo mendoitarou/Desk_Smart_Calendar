@@ -9,7 +9,7 @@ import feedparser
 # ===== CONFIG =====
 area_code = 390000
 is_news_show = True # True/False
-news_source_name = "nhk"#"itmedia", "virtual_life_magazine"
+news_source_name = "nhk"#"itmedia", "virtual_life_magazine", "piyolog"
 # ===== CONFIG =====
 
 conv_weatherCodes = {# 2023/04/21更新
@@ -285,6 +285,8 @@ def get_latest_news(source = "nhk"):
         url = "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml"
     if(source == "virtual_life_magazine"):
         url = "https://vr-lifemagazine.com/feed/"
+    if(source == "piyolog"):
+        url = "https://piyolog.hatenadiary.jp/rss"
     f = feedparser.parse(url) # 取得
     news_data = {}# 返り値用
     count = 0# 取得するニュースの個数制限用

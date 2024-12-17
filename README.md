@@ -78,7 +78,7 @@ $ git clone https://github.com/mendoitarou/Desk_Smart_Calendar.git
 
 ``is_news_show``ではニュースを表示するかを設定できます。(``True``か``False``)
 
-``news_source_name``では表示するニュースの取得元を変更できます。(``nhk``, ``itmedia``, ``virtual_life_magazine``から選べます。)
+``news_source_name``では表示するニュースの取得元を変更できます。(``nhk``, ``itmedia``, ``virtual_life_magazine``, ``piyolog``から選べます。)
 
 ## お天気アイコンの用意
 お天気アイコンの用意を手動でする必要があります。
