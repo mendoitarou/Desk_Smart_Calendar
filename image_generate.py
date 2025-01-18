@@ -412,4 +412,4 @@ def generate_image(debug = False):
 
 #get_latest_news(news_source_name)
 
-generate_image(True)
+#generate_image(True)
