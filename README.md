@@ -41,7 +41,7 @@ $ sudo apt-get install python3-pip python3-pil python3-numpy python3-gpiozero
 次に、必要なライブラリをインストールします。
 
 ```shell
-$ sudo pip3 install spidev Pillow requests feedparser
+$ sudo pip3 install spidev Pillow requests requests-cache feedparser
 ```
 
 次に、SPIを有効化します。
