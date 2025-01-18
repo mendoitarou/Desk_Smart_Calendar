@@ -6,6 +6,9 @@ import requests
 from PIL import Image,ImageDraw,ImageFont
 import feedparser
 
+from logging import getLogger
+logger = getLogger(__name__)
+
 # ===== CONFIG =====
 area_code = 390000
 is_news_show = True # True/False
@@ -259,123 +262,153 @@ conv_weatherCodes_Image = {# 2023/04/21更新
 path = os.getcwd()
 
 def get_weather_api(area_code = 390000, debug = False):
-    if(debug):
-        # デバッグ用のJSONを読み取る
-        r_parse = json.load(open("debug_weather.json", "r", encoding="utf-8"))
-    else:
-        # 気象庁から天気予報を取ってくる
-        url = f"https://www.jma.go.jp/bosai/forecast/data/forecast/{area_code}.json"
-        res = requests.get(url)
-        r_parse = res.json()
-    today_weather_code = int(r_parse[0]["timeSeries"][0]["areas"][0]["weatherCodes"][0])# 天気コード
-    min_temp = round(float(r_parse[1]["tempAverage"]["areas"][0]["min"]))# 四捨五入する
-    max_temp = round(float(r_parse[1]["tempAverage"]["areas"][0]["max"]))# 四捨五入する
-    weather_data = {}# 返り値用
-    weather_data["min_temp"] = min_temp
-    weather_data["max_temp"] = max_temp
-    weather_data["weather_code"] = today_weather_code
-    print(f"MIN_TEMP: {min_temp}, MAX_TEMP: {max_temp}, WEATHER_CODE: {today_weather_code}")# デバッグ用に出力
-    return weather_data
+    try:
+        if(debug):
+            # デバッグ用のJSONを読み取る
+            r_parse = json.load(open("debug_weather.json", "r", encoding="utf-8"))
+        else:
+            # 気象庁から天気予報を取ってくる
+            url = f"https://www.jma.go.jp/bosai/forecast/data/forecast/{area_code}.json"
+            res = requests.get(url)
+            r_parse = res.json()
+        today_weather_code = int(r_parse[0]["timeSeries"][0]["areas"][0]["weatherCodes"][0])# 天気コード
+        min_temp = round(float(r_parse[1]["tempAverage"]["areas"][0]["min"]))# 四捨五入する
+        max_temp = round(float(r_parse[1]["tempAverage"]["areas"][0]["max"]))# 四捨五入する
+        weather_data = {}# 返り値用
+        weather_data["min_temp"] = min_temp
+        weather_data["max_temp"] = max_temp
+        weather_data["weather_code"] = today_weather_code
+        print(f"MIN_TEMP: {min_temp}, MAX_TEMP: {max_temp}, WEATHER_CODE: {today_weather_code}")# デバッグ用に出力
+        return weather_data
+    except Exception as e:
+        # エラーログ出力
+        logger.info(f"[ERROR]function: get_weather_api, message: {e}")
+        print(f"[ERROR]function: get_weather_api, message: {e}")
+        text = f"\n[LOG][ERROR]MESSAGE: {e}\n"
+        log_path = path+"/error_log.txt"
+        with open(log_path, mode='a') as f:
+            f.write(text)
+        exit()
 
 def get_latest_news(source = "nhk"):
-    # ニュースの取得場所を変更
-    if(source == "nhk"):
-        url = "https://www.nhk.or.jp/rss/news/cat0.xml"
-    if(source == "itmedia"):
-        url = "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml"
-    if(source == "virtual_life_magazine"):
-        url = "https://vr-lifemagazine.com/feed/"
-    if(source == "piyolog"):
-        url = "https://piyolog.hatenadiary.jp/rss"
-    f = feedparser.parse(url) # 取得
-    news_data = {}# 返り値用
-    count = 0# 取得するニュースの個数制限用
-    # タイトル抽出
-    for article in f['entries']:
-        if(count < 3):# 3つ取得する
-            news_data[count] = article['title']
-        count = count + 1
-    return news_data
+    try:
+        # ニュースの取得場所を変更
+        if(source == "nhk"):
+            url = "https://www.nhk.or.jp/rss/news/cat0.xml"
+        if(source == "itmedia"):
+            url = "https://rss.itmedia.co.jp/rss/2.0/itmedia_all.xml"
+        if(source == "virtual_life_magazine"):
+            url = "https://vr-lifemagazine.com/feed/"
+        if(source == "piyolog"):
+            url = "https://piyolog.hatenadiary.jp/rss"
+        f = feedparser.parse(url) # 取得
+        news_data = {}# 返り値用
+        count = 0# 取得するニュースの個数制限用
+        # タイトル抽出
+        for article in f['entries']:
+            if(count < 3):# 3つ取得する
+                news_data[count] = article['title']
+            count = count + 1
+        return news_data
+    except Exception as e:
+        # エラーログ出力
+        logger.info(f"[ERROR]function: get_latest_news, message: {e}")
+        print(f"[ERROR]function: get_latest_news, message: {e}")
+        text = f"\n[LOG][ERROR]MESSAGE: {e}\n"
+        log_path = path+"/error_log.txt"
+        with open(log_path, mode='a') as f:
+            f.write(text)
+        exit()
 
 def generate_image(debug = False):
-    # 背景(真っ白)読み込み
-    im = Image.open(path+"/assets/base.png")
-    im = im.convert('RGB')
+    try:
+        # 背景(真っ白)読み込み
+        im = Image.open(path+"/assets/base.png")
+        im = im.convert('RGB')
 
-    # テキストを書き込む準備
-    draw = ImageDraw.Draw(im)
+        # テキストを書き込む準備
+        draw = ImageDraw.Draw(im)
 
-    # 表示
-    sign_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# Sign
-    draw.text((50, 240), 'Tarou Software', fill='black', font=sign_font)# sign multiline_text
+        # 表示
+        sign_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# Sign
+        draw.text((50, 240), 'Tarou Software', fill='black', font=sign_font)# sign multiline_text
     
-    # 日付(曜日)取得
-    now_date = datetime.datetime.now()
-    print("NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S'))
-    now_date_Year = now_date.year
-    now_date_Month = now_date.month
-    now_date_Day = now_date.day
-    now_date_Weekday_ENG = now_date.strftime('%a')
-    # 日付用フォント読み込み
-    date_Main_font = ImageFont.truetype(path+'/assets/ipag.ttc', 48, index=0)# Main
-    date_Sub_font = ImageFont.truetype(path+'/assets/ipag.ttc', 12, index=0)# Sub
-    # 日付の書き込み
-    draw.text((25, 10), f'{now_date_Month}', fill='black', font=date_Main_font)# Month #30,10
-    draw.text((50, 50), f'{now_date_Day}', fill='black', font=date_Main_font)# Day # 45,50
-    # 右上 90,15 90,25 (マシ？)
-    # 右真ん中 90,45 95,55 (かなり微妙)
-    # 右下 95,70 95,80 (かなり微妙)
-    # 左真ん中 10,45 10,55
-    # 左下 15,70 15,80 (一番マシ？)
-    draw.text((15, 70), f'{now_date_Year}', fill='black', font=date_Sub_font)# Year
-    draw.text((15, 80), f'{now_date_Weekday_ENG}', fill='black', font=date_Sub_font)# Month(Ex: Wed)
+        # 日付(曜日)取得
+        now_date = datetime.datetime.now()
+        print("NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S'))
+        now_date_Year = now_date.year
+        now_date_Month = now_date.month
+        now_date_Day = now_date.day
+        now_date_Weekday_ENG = now_date.strftime('%a')
+        # 日付用フォント読み込み
+        date_Main_font = ImageFont.truetype(path+'/assets/ipag.ttc', 48, index=0)# Main
+        date_Sub_font = ImageFont.truetype(path+'/assets/ipag.ttc', 12, index=0)# Sub
+        # 日付の書き込み
+        draw.text((25, 10), f'{now_date_Month}', fill='black', font=date_Main_font)# Month #30,10
+        draw.text((50, 50), f'{now_date_Day}', fill='black', font=date_Main_font)# Day # 45,50
+        # 右上 90,15 90,25 (マシ？)
+        # 右真ん中 90,45 95,55 (かなり微妙)
+        # 右下 95,70 95,80 (かなり微妙)
+        # 左真ん中 10,45 10,55
+        # 左下 15,70 15,80 (一番マシ？)
+        draw.text((15, 70), f'{now_date_Year}', fill='black', font=date_Sub_font)# Year
+        draw.text((15, 80), f'{now_date_Weekday_ENG}', fill='black', font=date_Sub_font)# Month(Ex: Wed)
 
-    # 天気予報
-    weather_data = get_weather_api(area_code, debug)# データの取得
-    # 天気アイコン貼り付け
-    im_weatherImage = Image.open(f'weatherCodes_Image/{weather_data["weather_code"]}.png')# 天気アイコン画像読み込み
-    im_weatherImage = im_weatherImage.resize((60, 40), Image.LANCZOS)# 大きさ変更
-    im.paste(im_weatherImage, (10, 110))
-    # 気温書き込み
-    weather_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
-    weather_temp_font = ImageFont.truetype(path+'/assets/ipag.ttc', 16, index=0)# 気温用フォント読み込み
-    draw.text((5, 100), 'Weather: ', fill='black', font=weather_title_font)# Title
-    draw.text((10, 150), f'⇩ {weather_data["min_temp"]}', fill='black', font=weather_temp_font)# Min
-    draw.text((50, 150), f'⇧ {weather_data["max_temp"]}', fill='black', font=weather_temp_font)# Max
-    draw.text((90, 155), f'(℃)', fill='black', font=weather_title_font)# Celsius
+        # 天気予報
+        weather_data = get_weather_api(area_code, debug)# データの取得
+        # 天気アイコン貼り付け
+        im_weatherImage = Image.open(f'weatherCodes_Image/{weather_data["weather_code"]}.png')# 天気アイコン画像読み込み
+        im_weatherImage = im_weatherImage.resize((60, 40), Image.LANCZOS)# 大きさ変更
+        im.paste(im_weatherImage, (10, 110))
+        # 気温書き込み
+        weather_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
+        weather_temp_font = ImageFont.truetype(path+'/assets/ipag.ttc', 16, index=0)# 気温用フォント読み込み
+        draw.text((5, 100), 'Weather: ', fill='black', font=weather_title_font)# Title
+        draw.text((10, 150), f'⇩ {weather_data["min_temp"]}', fill='black', font=weather_temp_font)# Min
+        draw.text((50, 150), f'⇧ {weather_data["max_temp"]}', fill='black', font=weather_temp_font)# Max
+        draw.text((90, 155), f'(℃)', fill='black', font=weather_title_font)# Celsius
 
-    # ニュースを表示(表示文字数が少なすぎて使い勝手悪い)
-    if(is_news_show):
-        news_data = get_latest_news(news_source_name)
-        news_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
-        news_article_font = ImageFont.truetype(path+'/assets/ipag.ttc', 11, index=0)# ニュース用フォント読み込み
-        draw.text((5, 170), 'News: ', fill='black', font=news_title_font)# Title
-        draw.text((5, 185), f'・{news_data[0]}', fill='black', font=news_article_font)# Article
-        draw.text((5, 205), f'・{news_data[1]}', fill='black', font=news_article_font)# Article
-        draw.text((5, 225), f'・{news_data[2]}', fill='black', font=news_article_font)# Article
+        # ニュースを表示(表示文字数が少なすぎて使い勝手悪い)
+        if(is_news_show):
+            news_data = get_latest_news(news_source_name)
+            news_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
+            news_article_font = ImageFont.truetype(path+'/assets/ipag.ttc', 11, index=0)# ニュース用フォント読み込み
+            draw.text((5, 170), 'News: ', fill='black', font=news_title_font)# Title
+            draw.text((5, 185), f'・{news_data[0]}', fill='black', font=news_article_font)# Article
+            draw.text((5, 205), f'・{news_data[1]}', fill='black', font=news_article_font)# Article
+            draw.text((5, 225), f'・{news_data[2]}', fill='black', font=news_article_font)# Article
     
-    # 画像保存
-    #im.save(path + '/latest.bmp', quality=100)
+        # 画像保存
+        #im.save(path + '/latest.bmp', quality=100)
 
-    # 実行ログ保存
-    text = "\n[LOG][RUN]\n"+"NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S')+"\n"+"MIN_TEMP: "+str(weather_data['min_temp'])+", MAX_TEMP: "+str(weather_data['max_temp'])+", WEATHER_CODE: "+str(weather_data['weather_code'])+"\n"
-    log_path = path+"/log.txt"
-    with open(log_path, mode='a') as f:
-        f.write(text)
+        # 実行ログ保存
+        text = "\n[LOG][RUN]\n"+"NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S')+"\n"+"MIN_TEMP: "+str(weather_data['min_temp'])+", MAX_TEMP: "+str(weather_data['max_temp'])+", WEATHER_CODE: "+str(weather_data['weather_code'])+"\n"
+        log_path = path+"/log.txt"
+        with open(log_path, mode='a') as f:
+            f.write(text)
 
-    #デバッグ
-    if(debug):
-        # デバッグ用画像表示
-        im.show()
-        # デバッグ用画像保存
-        #im.save(path + '/temp.png', quality=100)
+        #デバッグ
+        if(debug):
+            # デバッグ用画像表示
+            im.show()
+            # デバッグ用画像保存
+            #im.save(path + '/temp.png', quality=100)
 
-    # 返り値として画像を返す
-    return im
+        # 返り値として画像を返す
+        return im
+    except Exception as e:
+        # エラーログ出力
+        logger.info(f"[ERROR]function: generate_image, message: {e}")
+        print(f"[ERROR]function: generate_image, message: {e}")
+        text = f"\n[LOG][ERROR]MESSAGE: {e}\n"
+        log_path = path+"/error_log.txt"
+        with open(log_path, mode='a') as f:
+            f.write(text)
+        exit()
 
 #weather_data = get_weather_api(39000)
 #print(f"Weather_Icon_Image_Path: ./weatherCodes_Image/{weather_data["weather_code"]}.svg")
 
 #get_latest_news(news_source_name)
 
-#generate_image(True)
+generate_image(True)

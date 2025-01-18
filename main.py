@@ -47,6 +47,14 @@ try:
 
 except IOError as e:
     logging.info(e)
+
+except Exception as e:
+    logging.info(e)
+    text = f"\n[LOG][ERROR]MESSAGE: {e}\n"
+    log_path = path+"/error_log.txt"
+    with open(log_path, mode='a') as f:
+        f.write(text)
+    print(e)
     
 except KeyboardInterrupt:    
     logging.info("ctrl + c:")
