@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import sys, os, time, json, datetime
 
-import requests
+import requests, requests_cache
 from PIL import Image,ImageDraw,ImageFont
 import feedparser
 
@@ -268,7 +268,7 @@ def get_weather_api(area_code = 390000, debug = False):
             r_parse = json.load(open("debug_weather.json", "r", encoding="utf-8"))
         else:
             # 気象庁から天気予報を取ってくる
-            requests.requests_cache.clear() # キャッシュ削除
+            requests_cache.clear() # キャッシュ削除
             url = f"https://www.jma.go.jp/bosai/forecast/data/forecast/{area_code}.json"
             res = requests.get(url)
             r_parse = res.json()
