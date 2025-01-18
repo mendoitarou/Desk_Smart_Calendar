@@ -10,6 +10,11 @@ https://github.com/waveshareteam/e-Paper/tree/master/RaspberryPi_JetsonNano/pyth
 
 # NTP
 https://tksfj17.hatenablog.com/entry/2022/03/20/095334
+https://arakoki70.com/?p=5691
+
+# Error_Catch
+https://note.nkmk.me/python-try-except-else-finally/
+https://qiita.com/kyooooonaka/items/2907a54364823a482697
 
 # Sample_Setup
 ```
