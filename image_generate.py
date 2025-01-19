@@ -358,7 +358,7 @@ def generate_image(debug = False):
         # 天気予報
         weather_data = get_weather_api(area_code, debug)# データの取得
         # 天気アイコン貼り付け
-        im_weatherImage = Image.open(f'weatherCodes_Image/{weather_data["weather_code"]}.png')# 天気アイコン画像読み込み
+        im_weatherImage = Image.open(f'weatherCodes_Image/{conv_weatherCodes_Image[weather_data["weather_code"]]}.png')# 天気アイコン画像読み込み(同じアイコンの場合、変換)
         im_weatherImage = im_weatherImage.resize((60, 40), Image.LANCZOS)# 大きさ変更
         im.paste(im_weatherImage, (10, 110))
         # 気温書き込み
