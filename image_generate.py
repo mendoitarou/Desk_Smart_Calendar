@@ -416,10 +416,12 @@ def generate_image(debug = False):
 
 # デバッグ用
 if not sys.argv:
-    # コマンドライン引数なし
+    # コマンドライン引数なし(importからの呼び出しなど)
     print()
 else:
     # コマンドライン引数あり
-    if(sys.argv[1] == "Debug=on"):
-        # デバッグ指定有
-        generate_image(True)
+    if(len(sys.argv) >= 2):
+        # 自分のファイル名以外がある場合
+        if(sys.argv[1] == "Debug=on"):
+            # デバッグ指定有
+            generate_image(True)
