@@ -413,3 +413,13 @@ def generate_image(debug = False):
 #get_latest_news(news_source_name)
 
 #generate_image(True)
+
+# デバッグ用
+if not sys.argv:
+    # コマンドライン引数なし
+    print()
+else:
+    # コマンドライン引数あり
+    if(sys.argv[1] == "Debug=on"):
+        # デバッグ指定有
+        generate_image(True)
