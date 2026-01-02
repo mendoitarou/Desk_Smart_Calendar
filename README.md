@@ -37,7 +37,7 @@ $ sudo apt-get install python3-pip python3-pil python3-numpy python3-gpiozero
 次に、必要なライブラリをインストールします。
 
 ```shell
-$ sudo pip3 install spidev Pillow requests requests-cache feedparser
+$ sudo pip3 install spidev Pillow requests requests-cache feedparser gpiozerolgpio RPi.GPIO
 ```
 
 次に、SPIを有効化します。
@@ -82,6 +82,14 @@ $ git clone https://github.com/mendoitarou/Desk_Smart_Calendar.git
 権利関連が大丈夫なのか心配ではありますが、気象庁さんのお天気アイコンを使わせていただきます。
 
 ``download_Image.py``で``svg``をダウンロードしてきて、手動で``png``に変換してください。(``png``変換の自動化がうまくいかなかったので手動でお願いします。)
+
+`inkscape`を使えば`svg`ファイルを`png`に変換できます。
+
+```shell
+inkscape *.svg --export-type=png --export-background=ffffff --export-background-opacity=1
+```
+
+背景色を白に指定することを忘れないでください。(背景が透過だと電子ペーパー描写時に黒色になってしまいます。)
 
 デフォルトでは``weatherCodes_Image``に保存されています。ここに置かないとメインのコードが動かないので注意。
 
