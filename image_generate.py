@@ -11,6 +11,8 @@ logger = getLogger(__name__)
 
 # ===== CONFIG =====
 area_code = 390000
+display_direction = "vertical" # vertical/horizontal
+is_weather_show = True # True/False
 is_news_show = True # True/False
 news_source_name = "nhk"#"itmedia", "virtual_life_magazine", "piyolog"
 # ===== CONFIG =====
@@ -307,7 +309,10 @@ def get_latest_news(source = "nhk"):
         count = 0# 取得するニュースの個数制限用
         # タイトル抽出
         for article in f['entries']:
-            if(count < 3):# 3つ取得する
+            maxCount = 3
+            if(display_direction == "horizontal"):
+                maxCount = 5
+            if(count < maxCount):# maxCounte個取得する
                 news_data[count] = article['title']
             count = count + 1
         return news_data
@@ -327,13 +332,26 @@ def generate_image(debug = False):
         im = Image.open(path+"/assets/base.png")
         im = im.convert('RGB')
 
+        if(display_direction == "horizontal"):
+            im = im.rotate(90, expand=True)
+
         # テキストを書き込む準備
         draw = ImageDraw.Draw(im)
 
         # 表示
         sign_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# Sign
-        draw.text((50, 240), 'Tarou Software', fill='black', font=sign_font)# sign multiline_text
-    
+        x = 0
+        y = 0
+        if(display_direction == "horizontal"):
+            # Horizontal
+            x = 5
+            y = 110
+        else:
+            # Default: vertical
+            x = 50
+            y = 240
+        draw.text((x, y), 'Tarou Software', fill='black', font=sign_font)# sign multiline_text
+        
         # 日付(曜日)取得
         now_date = datetime.datetime.now()
         print("NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S'))
@@ -345,45 +363,82 @@ def generate_image(debug = False):
         date_Main_font = ImageFont.truetype(path+'/assets/ipag.ttc', 48, index=0)# Main
         date_Sub_font = ImageFont.truetype(path+'/assets/ipag.ttc', 12, index=0)# Sub
         # 日付の書き込み
-        draw.text((25, 10), f'{now_date_Month}', fill='black', font=date_Main_font)# Month #30,10
-        draw.text((50, 50), f'{now_date_Day}', fill='black', font=date_Main_font)# Day # 45,50
+        # 同じ配置でもいい感じになったのでどっちにしても同じ配置にする
+        if(display_direction == "horizontal"):
+            # Horizontal
+            draw.text((20, 10), f'{now_date_Month}', fill='black', font=date_Main_font)# Month #30,10
+            draw.text((35, 50), f'{now_date_Day}', fill='black', font=date_Main_font)# Day # 45,50
+            draw.text((10, 80), f'{now_date_Year}', fill='black', font=date_Sub_font)# Year
+            draw.text((10, 90), f'{now_date_Weekday_ENG}', fill='black', font=date_Sub_font)# Month(Ex: Wed)
+        else:
+            # Default: vertical
+            draw.text((25, 10), f'{now_date_Month}', fill='black', font=date_Main_font)# Month #30,10
+            draw.text((50, 50), f'{now_date_Day}', fill='black', font=date_Main_font)# Day # 45,50
+            draw.text((15, 70), f'{now_date_Year}', fill='black', font=date_Sub_font)# Year
+            draw.text((15, 80), f'{now_date_Weekday_ENG}', fill='black', font=date_Sub_font)# Month(Ex: Wed)
+
+        # 日付 配置メモ(縦)
         # 右上 90,15 90,25 (マシ？)
         # 右真ん中 90,45 95,55 (かなり微妙)
         # 右下 95,70 95,80 (かなり微妙)
         # 左真ん中 10,45 10,55
         # 左下 15,70 15,80 (一番マシ？)
-        draw.text((15, 70), f'{now_date_Year}', fill='black', font=date_Sub_font)# Year
-        draw.text((15, 80), f'{now_date_Weekday_ENG}', fill='black', font=date_Sub_font)# Month(Ex: Wed)
 
         # 天気予報
-        weather_data = get_weather_api(area_code, debug)# データの取得
-        # 天気アイコン貼り付け
-        im_weatherImage = Image.open(f'weatherCodes_Image/{conv_weatherCodes_Image[weather_data["weather_code"]]}.png')# 天気アイコン画像読み込み(同じアイコンの場合、変換)
-        im_weatherImage = im_weatherImage.resize((60, 40), Image.LANCZOS)# 大きさ変更
-        im.paste(im_weatherImage, (10, 110))
-        # 気温書き込み
-        weather_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
-        weather_temp_font = ImageFont.truetype(path+'/assets/ipag.ttc', 16, index=0)# 気温用フォント読み込み
-        draw.text((5, 100), 'Weather: ', fill='black', font=weather_title_font)# Title
-        draw.text((10, 150), f'⇩ {weather_data["min_temp"]}', fill='black', font=weather_temp_font)# Min
-        draw.text((50, 150), f'⇧ {weather_data["max_temp"]}', fill='black', font=weather_temp_font)# Max
-        draw.text((90, 155), f'(℃)', fill='black', font=weather_title_font)# Celsius
+        if(is_weather_show):
+            weather_data = get_weather_api(area_code, debug)# データの取得
+            # 天気アイコン貼り付け
+            im_weatherImage = Image.open(f'weatherCodes_Image/{conv_weatherCodes_Image[weather_data["weather_code"]]}.png')# 天気アイコン画像読み込み(同じアイコンの場合、変換)
+            im_weatherImage = im_weatherImage.resize((60, 40), Image.LANCZOS)# 大きさ変更
+            # 気温書き込み
+            weather_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
+            weather_temp_font = ImageFont.truetype(path+'/assets/ipag.ttc', 16, index=0)# 気温用フォント読み込み
+            if(display_direction == "horizontal"):
+                # Horizontal
+                im.paste(im_weatherImage, (100, 20))# 天気アイコン
+                # 気温
+                draw.text((100, 10), 'Weather: ', fill='black', font=weather_title_font)# Title
+                draw.text((100, 60), f'⇩ {weather_data["min_temp"]}', fill='black', font=weather_temp_font)# Min
+                draw.text((135, 60), f'⇧ {weather_data["max_temp"]}', fill='black', font=weather_temp_font)# Max
+                draw.text((175, 65), f'(℃)', fill='black', font=weather_title_font)# Celsius
+            else:
+                # Default: vertical
+                im.paste(im_weatherImage, (10, 110))# 天気アイコン
+                # 気温
+                draw.text((5, 100), 'Weather: ', fill='black', font=weather_title_font)# Title
+                draw.text((10, 150), f'⇩ {weather_data["min_temp"]}', fill='black', font=weather_temp_font)# Min
+                draw.text((50, 150), f'⇧ {weather_data["max_temp"]}', fill='black', font=weather_temp_font)# Max
+                draw.text((90, 155), f'(℃)', fill='black', font=weather_title_font)# Celsius
 
         # ニュースを表示(表示文字数が少なすぎて使い勝手悪い)
         if(is_news_show):
             news_data = get_latest_news(news_source_name)
             news_title_font = ImageFont.truetype(path+'/assets/ipag.ttc', 10, index=0)# タイトル用フォント読み込み
             news_article_font = ImageFont.truetype(path+'/assets/ipag.ttc', 11, index=0)# ニュース用フォント読み込み
-            draw.text((5, 170), 'News: ', fill='black', font=news_title_font)# Title
-            draw.text((5, 185), f'・{news_data[0]}', fill='black', font=news_article_font)# Article
-            draw.text((5, 205), f'・{news_data[1]}', fill='black', font=news_article_font)# Article
-            draw.text((5, 225), f'・{news_data[2]}', fill='black', font=news_article_font)# Article
-    
+            x = 0
+            y = 0
+            if(display_direction == "horizontal"):
+                # Horizontal
+                x = 100
+                y = 5
+                draw.text((x, y+75), f'・{news_data[3]}', fill='black', font=news_article_font)# Article
+                draw.text((x, y+95), f'・{news_data[4]}', fill='black', font=news_article_font)# Article
+            else:
+                # Default: vertical
+                x = 5
+                y = 170
+            draw.text((x, y), 'News: ', fill='black', font=news_title_font)# Title
+            draw.text((x, y+15), f'・{news_data[0]}', fill='black', font=news_article_font)# Article
+            draw.text((x, y+35), f'・{news_data[1]}', fill='black', font=news_article_font)# Article
+            draw.text((x, y+55), f'・{news_data[2]}', fill='black', font=news_article_font)# Article
+
         # 画像保存
         #im.save(path + '/latest.bmp', quality=100)
 
         # 実行ログ保存
-        text = "\n[LOG][RUN]\n"+"NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S')+"\n"+"MIN_TEMP: "+str(weather_data['min_temp'])+", MAX_TEMP: "+str(weather_data['max_temp'])+", WEATHER_CODE: "+str(weather_data['weather_code'])+"\n"
+        text = "\n[LOG][RUN]\n"+"NOW_DATA: "+now_date.strftime('%Y-%m-%d_%H-%M-%S')+"\n"
+        if(is_weather_show):
+            text += "MIN_TEMP: "+str(weather_data['min_temp'])+", MAX_TEMP: "+str(weather_data['max_temp'])+", WEATHER_CODE: "+str(weather_data['weather_code'])+"\n"
         log_path = path+"/log.txt"
         with open(log_path, mode='a') as f:
             f.write(text)
