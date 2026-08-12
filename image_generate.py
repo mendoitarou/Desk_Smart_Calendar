@@ -15,6 +15,7 @@ display_direction = "vertical" # vertical/horizontal
 is_weather_show = True # True/False
 is_news_show = True # True/False
 news_source_name = "nhk"#"itmedia", "virtual_life_magazine", "piyolog"
+is_flip = False # True/False
 # ===== CONFIG =====
 
 conv_weatherCodes = {# 2023/04/21更新
@@ -431,6 +432,10 @@ def generate_image(debug = False):
             draw.text((x, y+15), f'・{news_data[0]}', fill='black', font=news_article_font)# Article
             draw.text((x, y+35), f'・{news_data[1]}', fill='black', font=news_article_font)# Article
             draw.text((x, y+55), f'・{news_data[2]}', fill='black', font=news_article_font)# Article
+
+        # 反転処理
+        if(is_flip):
+            im = im.rotate(180, expand=True)
 
         # 画像保存
         #im.save(path + '/latest.bmp', quality=100)
