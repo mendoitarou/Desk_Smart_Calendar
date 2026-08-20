@@ -1,7 +1,7 @@
 import sys, os, time, json
 import requests
-from svglib.svglib import svg2rlg
-from reportlab.graphics import renderPM
+#from svglib.svglib import svg2rlg
+#from reportlab.graphics import renderPM
 
 weatherCodes = [
     100,
