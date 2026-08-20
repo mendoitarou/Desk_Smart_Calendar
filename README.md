@@ -130,3 +130,20 @@ $ which python3
 IPAフォント:
 
 [IPAexフォントおよびIPAフォントについて | 一般社団法人 文字情報技術促進協議会](https://moji.or.jp/ipafont/)
+
+# 開発環境
+## Pythonの準備
+
+### ライブラリインストール
+
+画像生成処理のみなら以下だけで構いません。これでPCでも開発が可能です。
+
+```
+venv/bin/pip3 install Pillow requests requests-cache feedparser
+```
+
+## 実行
+### 画像生成テスト
+```
+venv/bin/python3 image_test.py
+```
